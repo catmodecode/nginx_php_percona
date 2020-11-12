@@ -1,0 +1,16 @@
+.idea/
+etc/httpd/sites-enabled/*
+!etc/httpd/sites-enabled/default.conf
+etc/nginx/sites-enabled/*
+!etc/nginx/sites-enabled/default.conf
+data/*db/
+data/*rep/
+data/watcher/
+!data/watcher/.gitkeep
+!data/*rep/.gitkeep
+!data/*db/.gitkeep
+log/*_log/
+!log/*_log/**.gitkeep
+www/*
+!www/.gitkeep
+.env

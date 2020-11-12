@@ -1,0 +1,132 @@
+version: '3.2'
+
+services:
+  nginx:
+    image: nginx:1.19.2-alpine
+    container_name: nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./www:/var/www
+      - ./etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./etc/nginx/locations.conf:/etc/nginx/locations.conf
+      - ./etc/nginx/ssl_redirect.conf:/etc/nginx/ssl_redirect.conf
+      - ./etc/nginx/cert.conf:/etc/nginx/cert.conf
+      - ./etc/nginx/cmc_com.conf:/etc/nginx/cmc_com.conf
+      - ./etc/nginx/sites-enabled:/etc/nginx/conf.d
+      - ./etc/nginx/ssl:/etc/nginx/ssl
+      - ./log/nginx_log:/var/log/nginx
+    depends_on:
+      - php
+
+  php:
+    build: ./builder/php
+    container_name: php
+    volumes:
+      - ./www:/var/www
+      - ./etc/php/php.ini:/usr/local/etc/php/php.ini
+    ports:
+      - 8000:8000
+    links:
+      - db
+      - redis
+    environment:
+      XDEBUG_CONFIG: "remote_host=host.docker.internal remote_port=9000 remote_enable=1"
+      PHP_IDE_CONFIG: "serverName=Docker"
+
+  composer:
+    image: "composer"
+    container_name: composer
+    volumes:
+      - ./www:/app
+    command: bash -c "cd /app/cmc.com && composer install"
+    depends_on:
+      - php
+
+  db:
+    image: percona/percona-server:8.0
+    container_name: db
+    restart: always
+    env_file:
+      - ".env"
+    user: "1001:1001"
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_TCP_PORT: 3306
+    volumes:
+      - ./data/mysqldb:/var/lib/mysql
+      - ./etc/mysql/conf.d:/etc/mysql/conf.d
+      - ./etc/mysql/my.cnf:/etc/my.cnf:ro
+    security_opt:
+      - seccomp:unconfined
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    links:
+      - db
+    env_file:
+      - ".env"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      - db
+
+  redis:
+    image: redis:6.0.6
+    container_name: redis
+    restart: always
+    volumes:
+      - ./data/redisdb:/data
+
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+    - REDIS_HOSTS=local:redis:6379
+    ports:
+    - "8081:8081"
+
+  rabbitmq:
+    build: ./builder/rabbitmq
+    container_name: rabbitmq
+    env_file:
+      - ".env"
+    ports:
+      - "${RABBITMQ_NODE_HOST_PORT}:5672"
+    privileged: true
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    restart: always
+    depends_on:
+      - php
+
+  mail:
+    container_name: mail
+    restart: unless-stopped
+    image: eaudeweb/mailtrap
+    ports:
+      - "8125:80"
+      - "2525:25"
+    environment:
+      - MT_USER=${MT_USER}
+      - MT_PASSWD=${MT_PASSWD}
+      - MT_MAILBOX_LIMIT=${MT_MAILBOX_LIMIT}
+      - MT_MESSAGE_LIMIT=${MT_MESSAGE_LIMIT}
+
+  cron:
+    container_name: cron
+    privileged: true
+    restart: unless-stopped
+    build: ./builder/cron
+    volumes:
+      - "./data/cron/crontab/root.cron:/var/spool/cron/crontabs/root"
+      - "./data/cron/scripts:/cronscripts"
+      - "//var/run/docker.sock:/var/run/docker.sock"

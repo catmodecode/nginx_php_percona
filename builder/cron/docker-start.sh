@@ -1,0 +1,1 @@
+crond -l 7 -b && tail -f /var/log/cron.log & wait $!
