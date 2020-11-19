@@ -40,7 +40,7 @@ services:
     container_name: composer
     volumes:
       - ./www:/app
-    command: bash -c "cd /app/cmc.com && composer install"
+    command: bash -c "cd /app/catmodecode.tk && composer install"
     depends_on:
       - php
 
