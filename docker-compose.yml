@@ -45,37 +45,28 @@ services:
       - php
 
   db:
-    image: percona/percona-server:8.0
+    image: postgres:13.1-alpine
     container_name: db
     restart: always
     env_file:
       - ".env"
-    user: "1001:1001"
+    user: "1000:1000"
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_TCP_PORT: 3306
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - ./data/mysqldb:/var/lib/mysql
-      - ./etc/mysql/conf.d:/etc/mysql/conf.d
-      - ./etc/mysql/my.cnf:/etc/my.cnf:ro
-    security_opt:
-      - seccomp:unconfined
+      - ./data/db:/var/lib/postgresql/data
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
-    links:
-      - db
+  dbadmin:
+    image: dpage/pgadmin4:4.28
+    container_name: dbadmin
     env_file:
       - ".env"
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    depends_on:
-      - db
-
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_ENABLE_TLS: ${PGADMIN_ENABLE_TLS}
+    
   redis:
     image: redis:6.0.6
     container_name: redis

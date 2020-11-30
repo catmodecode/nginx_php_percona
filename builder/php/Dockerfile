@@ -5,6 +5,7 @@ WORKDIR /var/www
 RUN apk upgrade --update && apk add --update --no-cache \
     autoconf \
     g++ \
+    git \
     make \
     wget \
     curl \
