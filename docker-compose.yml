@@ -14,7 +14,8 @@ services:
       - ./etc/nginx/ssl_redirect.conf:/etc/nginx/ssl_redirect.conf
       - ./etc/nginx/cert.conf:/etc/nginx/cert.conf
       - ./etc/nginx/cmc_com.conf:/etc/nginx/cmc_com.conf
-      - ./etc/nginx/sites-enabled:/etc/nginx/conf.d
+      - ./etc/nginx/sites-enabled:/etc/nginx/sites-enabled
+      - ./etc/nginx/tools-enabled:/etc/nginx/tools-enabled
       - ./etc/nginx/ssl:/etc/nginx/ssl
       - ./log/nginx_log:/var/log/nginx
     depends_on:
@@ -65,6 +66,9 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       PGADMIN_ENABLE_TLS: ${PGADMIN_ENABLE_TLS}
+    volumes:
+      - ./etc/nginx-selfsigned.crt:/certs/server.cert
+      - ./etc/nginx-selfsigned.key:/certs/server.key
     
   redis:
     image: redis:6.0.6
