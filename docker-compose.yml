@@ -46,7 +46,7 @@ services:
       - php
 
   db:
-    image: postgres:12-alpine
+    image: postgres:13.1-alpine
     container_name: db
     restart: always
     env_file:
