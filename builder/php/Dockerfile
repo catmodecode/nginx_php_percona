@@ -14,6 +14,7 @@ RUN apk upgrade --update && apk add --update --no-cache \
     libjpeg-turbo \
     freetype-dev \
     libpng-dev \
+    postgresql-dev \
     libjpeg-turbo-dev &&\
     docker-php-ext-configure gd \
         --with-freetype \
@@ -21,8 +22,9 @@ RUN apk upgrade --update && apk add --update --no-cache \
     NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
     docker-php-ext-install -j${NPROC} gd && \
     apk del --no-cache freetype-dev libpng-dev libjpeg-turbo-dev \
-    libmcrypt-dev
-
+    libmcrypt-dev && \
+    docker-php-ext-install -j$(nproc) pgsql && \
+    docker-php-ext-install -j$(nproc) pdo_pgsql
 
 RUN pecl install igbinary 
 RUN docker-php-ext-enable igbinary

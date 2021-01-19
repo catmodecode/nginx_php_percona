@@ -3,7 +3,7 @@ version: '3.2'
 services:
   nginx:
     image: nginx:1.19.2-alpine
-    container_name: nginx
+    container_name: flonginx
     ports:
       - 80:80
       - 443:443
@@ -23,12 +23,10 @@ services:
 
   php:
     build: ./builder/php
-    container_name: php
+    container_name: flophp
     volumes:
       - ./www:/var/www
       - ./etc/php/php.ini:/usr/local/etc/php/php.ini
-    ports:
-      - 8000:8000
     links:
       - db
       - redis
@@ -38,16 +36,16 @@ services:
 
   composer:
     image: "composer"
-    container_name: composer
+    container_name: flocomposer
     volumes:
       - ./www:/app
-    command: bash -c "cd /app/catmodecode.tk && composer install"
+    command: bash -c "cd /app/int-flomarket.com && composer install"
     depends_on:
       - php
 
   db:
     image: postgres:13.1-alpine
-    container_name: db
+    container_name: flodb
     restart: always
     env_file:
       - ".env"
@@ -59,13 +57,12 @@ services:
 
   dbadmin:
     image: dpage/pgadmin4:4.28
-    container_name: dbadmin
+    container_name: flodbadmin
     env_file:
       - ".env"
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-      PGADMIN_ENABLE_TLS: ${PGADMIN_ENABLE_TLS}
       PROXY_X_FOR_COUNT: 2
       PROXY_X_PROTO_COUNT: 1
       PROXY_X_HOST_COUNT: 1
@@ -79,28 +76,24 @@ services:
     
   redis:
     image: redis:6.0.6
-    container_name: redis
+    container_name: floredis
     restart: always
     volumes:
       - ./data/redisdb:/data
 
   redis-commander:
-    container_name: redis-commander
+    container_name: floredis-commander
     hostname: redis-commander
     image: rediscommander/redis-commander:latest
     restart: always
     environment:
     - REDIS_HOSTS=local:redis:6379
-    ports:
-    - "8081:8081"
 
   rabbitmq:
     build: ./builder/rabbitmq
-    container_name: rabbitmq
+    container_name: florabbitmq
     env_file:
       - ".env"
-    ports:
-      - "${RABBITMQ_NODE_HOST_PORT}:5672"
     privileged: true
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
@@ -110,12 +103,9 @@ services:
       - php
 
   mail:
-    container_name: mail
+    container_name: flomail
     restart: unless-stopped
     image: eaudeweb/mailtrap
-    ports:
-      - "8125:80"
-      - "2525:25"
     environment:
       - MT_USER=${MT_USER}
       - MT_PASSWD=${MT_PASSWD}
@@ -123,7 +113,7 @@ services:
       - MT_MESSAGE_LIMIT=${MT_MESSAGE_LIMIT}
 
   cron:
-    container_name: cron
+    container_name: flocron
     privileged: true
     restart: unless-stopped
     build: ./builder/cron
