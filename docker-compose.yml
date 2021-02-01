@@ -20,7 +20,7 @@ services:
       - ./log/nginx_log:/var/log/nginx
     depends_on:
       - php
-
+      
   php:
     build: ./builder/php
     container_name: flophp
@@ -28,7 +28,9 @@ services:
     volumes:
       - ./www:/var/www
       - ./etc/php/php.ini:/usr/local/etc/php/php.ini
-      - ./log/profiler_log:/var/log/phpprofiler
+      - ./etc/php/conf.d/:/usr/local/etc/php/conf.d/
+    ports:
+      - 8000:8000
     links:
       - db
       - redis
@@ -48,6 +50,7 @@ services:
   db:
     image: postgres:13.1-alpine
     container_name: flodb
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     restart: always
     env_file:
       - ".env"
@@ -56,6 +59,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ./data/db:/var/lib/postgresql/data
+      - ./etc/db/my-postgres.conf:/etc/postgresql/postgresql.conf
 
   dbadmin:
     image: dpage/pgadmin4:4.28
