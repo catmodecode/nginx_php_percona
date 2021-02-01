@@ -24,14 +24,16 @@ services:
   php:
     build: ./builder/php
     container_name: flophp
+    user: 1000:1000
     volumes:
       - ./www:/var/www
       - ./etc/php/php.ini:/usr/local/etc/php/php.ini
+      - ./log/profiler_log:/var/log/phpprofiler
     links:
       - db
       - redis
     environment:
-      XDEBUG_CONFIG: "remote_host=host.docker.internal remote_port=9000 remote_enable=1"
+      XDEBUG_CONFIG: "remote_host=192.168.8.165 remote_port=9000 remote_enable=1"
       PHP_IDE_CONFIG: "serverName=Docker"
 
   composer:
@@ -121,3 +123,10 @@ services:
       - "./data/cron/crontab/root.cron:/var/spool/cron/crontabs/root"
       - "./data/cron/scripts:/cronscripts"
       - "//var/run/docker.sock:/var/run/docker.sock"
+
+  profiler:
+    container_name: floprofiler
+    restart: unless-stopped
+    image: jokkedk/webgrind:latest
+    volumes:
+      - ./log/profiler_log:/tmp
