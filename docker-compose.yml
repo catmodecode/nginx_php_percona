@@ -20,7 +20,7 @@ services:
       - ./log/nginx_log:/var/log/nginx
     depends_on:
       - php
-      
+
   php:
     build: ./builder/php
     container_name: flophp
@@ -29,8 +29,7 @@ services:
       - ./www:/var/www
       - ./etc/php/php.ini:/usr/local/etc/php/php.ini
       - ./etc/php/conf.d/:/usr/local/etc/php/conf.d/
-    ports:
-      - 8000:8000
+      - ./log/profiler_log:/var/log/phpprofiler
     links:
       - db
       - redis
