@@ -48,6 +48,7 @@ services:
 
   db:
     image: postgres:13.1-alpine
+    shm_size: 1g
     container_name: flodb
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
     restart: always
