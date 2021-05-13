@@ -113,4 +113,12 @@ ADD localhost.crt /etc/php/localhost.crt
 
 RUN chown -R www-data:www-data ./
 
+RUN mkdir /.composer && \
+    chown -R 1000:1000 /.composer && \
+    mkdir /.cache && \
+    chown -R 1000:1000 /.cache
+
+USER 1000:1000
+RUN composer global require vimeo/psalm
+
 CMD ["php-fpm", "--nodaemonize"]
