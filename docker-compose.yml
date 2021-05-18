@@ -24,7 +24,7 @@ services:
   php:
     build: ./builder/php
     container_name: flophp
-#    user: 1000:1000
+    user: ${USER_ID}:${GROUP_ID}
     volumes:
       - ./www:/var/www
       - ./etc/php/php.ini:/usr/local/etc/php/php.ini
