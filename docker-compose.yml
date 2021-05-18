@@ -24,7 +24,7 @@ services:
   php:
     build: ./builder/php
     container_name: flophp
-    user: 1000:1000
+    user: ${USER_ID}:${GROUP_ID}
     volumes:
       - ./www:/var/www
       - ./etc/php/php.ini:/usr/local/etc/php/php.ini
@@ -33,7 +33,7 @@ services:
       - db
       - redis
     environment:
-      XDEBUG_CONFIG: "remote_host=192.168.8.165 remote_port=9000 remote_enable=1"
+      XDEBUG_CONFIG: "remote_host=${LOCAL_IP} client_host=${LOCAL_IP} remote_port=9000 remote_enable=1"
       PHP_IDE_CONFIG: "serverName=Docker"
 
   composer:
