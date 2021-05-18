@@ -34,7 +34,7 @@ services:
       - db
       - redis
     environment:
-      XDEBUG_CONFIG: "remote_host=192.168.68.104 remote_port=9000 remote_enable=1"
+      XDEBUG_CONFIG: "remote_host=${LOCAL_IP} client_host=${LOCAL_IP} remote_port=9000 remote_enable=1"
       PHP_IDE_CONFIG: "serverName=Docker"
 
   composer:
