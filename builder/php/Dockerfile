@@ -1,10 +1,11 @@
-FROM php:8.0.0-fpm-alpine3.12
+FROM php:8.0.6-fpm-alpine3.12
 
 WORKDIR /var/www
 
 RUN apk upgrade --update && apk add --update --no-cache \
     postgresql-dev \
     autoconf \
+    git \
     g++ \
     make \
     wget \
@@ -12,6 +13,7 @@ RUN apk upgrade --update && apk add --update --no-cache \
     freetype \
     libpng \
     libjpeg-turbo \
+    rabbitmq-c-dev \
     freetype-dev \
     libpng-dev \
     libzip-dev \
@@ -37,7 +39,8 @@ RUN pecl channel-update pecl.php.net && \
 
 RUN pecl install apcu
 RUN docker-php-ext-enable apcu
-RUN docker-php-ext-install bcmath
+RUN docker-php-ext-install bcmath sockets
+RUN docker-php-ext-enable sockets
 
 RUN apk add --update --no-cache libbz2 bzip2-dev
 
@@ -73,15 +76,32 @@ RUN docker-php-ext-install pdo_pgsql
 
 RUN apk add --no-cache libxml2-dev
 RUN docker-php-ext-install soap
-RUN docker-php-ext-install sockets
-RUN docker-php-ext-install sysvmsg
-RUN docker-php-ext-install sysvsem
-RUN docker-php-ext-install sysvshm
+RUN docker-php-ext-install sysvmsg sysvsem sysvshm
 
 RUN docker-php-ext-install opcache
 
 RUN pecl install xdebug-3.0.1
 RUN docker-php-ext-enable xdebug
+
+# RUN git clone git://github.com/alanxz/rabbitmq-c.git &&\
+#     cd rabbitmq-c &&\
+#     git submodule init &&\
+#     git submodule update &&\
+#     ls && cat travis.sh &&\
+#     autoreconf -i && ./configure && make && make install
+#     # Configure, compile and install
+# RUN autoreconf -i && ./configure && make && make install
+# RUN echo -ne '\n' |\
+#     pecl install -f https://github.com/0x450x6c/php-amqp/raw/7323b3c9cc2bcb8343de9bb3c2f31f6efbc8894b/amqp-1.10.3.tgz
+RUN echo -ne '\n' | pecl install -f https://github.com/0x450x6c/php-amqp/raw/7323b3c9cc2bcb8343de9bb3c2f31f6efbc8894b/amqp-1.10.3.tgz
+# RUN git clone https://github.com/pdezwart/php-amqp.git github-pdezwart-php-amqp/ &&\
+#     cd github-pdezwart-php-amqp &&\
+#     #git checkout tags/v1.9.4 ./
+#     phpize &&\
+#     ./configure --with-librabbitmq-dir=/usr/local/Cellar/rabbitmq-c/0.10.0 &&\
+#     make && make install
+# RUN docker-php-ext-enable amqp
+RUN docker-php-ext-enable amqp
 
 RUN curl -sS https://getcomposer.org/installer | php -- \
         --filename=composer \
