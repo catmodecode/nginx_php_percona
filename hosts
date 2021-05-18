@@ -2,3 +2,5 @@
 127.0.0.1 rmq
 127.0.0.1 redisc
 127.0.0.1 mailtrap
+127.0.0.1 pprofiler
+127.0.0.1 catmodecode.tk
