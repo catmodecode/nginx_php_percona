@@ -26,6 +26,9 @@ DOCKER PHP 8 PERCONA RABBIT
 1. Копируем `.env.example` в `.env`
 2. Редактируем настройки в `.env`
     ```env
+    # Название проекта. Используется как префиксы контейнеров. your_project_name_php например
+    PROJECT_NAME=your_project_name
+
     # Пользователь и группа, обычно не требует изменений.
     # В случае с виндой может потребоваться убрать отсюда и из docker-compose.yml
     USER_ID=1000

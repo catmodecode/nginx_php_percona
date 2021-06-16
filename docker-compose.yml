@@ -3,7 +3,7 @@ version: '3.2'
 services:
   nginx:
     image: nginx:1.19.2-alpine
-    container_name: flonginx
+    container_name: ${PROJECT_NAME}_nginx
     ports:
       - 80:80
       - 443:443
@@ -23,7 +23,7 @@ services:
 
   php:
     build: ./builder/php
-    container_name: flophp
+    container_name: ${PROJECT_NAME}_php
     user: ${USER_ID}:${GROUP_ID}
     volumes:
       - ./www:/var/www
@@ -39,7 +39,7 @@ services:
 
   composer:
     image: "composer"
-    container_name: flocomposer
+    container_name: ${PROJECT_NAME}_composer
     volumes:
       - ./www:/app
     command: bash -c "cd /app/int-flomarket.com && composer install"
@@ -49,7 +49,7 @@ services:
   db:
     image: postgres:13.1-alpine
     shm_size: 1g
-    container_name: flodb
+    container_name: ${PROJECT_NAME}_db
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
     restart: always
     env_file:
@@ -63,7 +63,7 @@ services:
 
   dbadmin:
     image: dpage/pgadmin4:4.28
-    container_name: flodbadmin
+    container_name: ${PROJECT_NAME}_dbadmin
     env_file:
       - ".env"
     environment:
@@ -82,13 +82,13 @@ services:
     
   redis:
     image: redis:6.0.6
-    container_name: floredis
+    container_name: ${PROJECT_NAME}_redis
     restart: always
     volumes:
       - ./data/redisdb:/data
 
   redis-commander:
-    container_name: floredis-commander
+    container_name: ${PROJECT_NAME}_redis-commander
     hostname: redis-commander
     image: rediscommander/redis-commander:latest
     restart: always
@@ -97,7 +97,7 @@ services:
 
   rabbitmq:
     build: ./builder/rabbitmq
-    container_name: florabbitmq
+    container_name: ${PROJECT_NAME}_rabbitmq
     env_file:
       - ".env"
     privileged: true
@@ -109,7 +109,7 @@ services:
       - php
 
   mail:
-    container_name: flomail
+    container_name: ${PROJECT_NAME}_mail
     restart: unless-stopped
     image: eaudeweb/mailtrap
     environment:
@@ -119,7 +119,7 @@ services:
       - MT_MESSAGE_LIMIT=${MT_MESSAGE_LIMIT}
 
   cron:
-    container_name: flocron
+    container_name: ${PROJECT_NAME}_cron
     privileged: true
     restart: unless-stopped
     build: ./builder/cron
@@ -129,7 +129,7 @@ services:
       - "//var/run/docker.sock:/var/run/docker.sock"
 
   profiler:
-    container_name: floprofiler
+    container_name: ${PROJECT_NAME}_profiler
     restart: unless-stopped
     image: jokkedk/webgrind:latest
     volumes:
